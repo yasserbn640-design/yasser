@@ -1,0 +1,515 @@
+﻿```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>القرآن الكريم</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Tahoma, Arial, sans-serif;
+    background:#f4f7f5;
+    color:#17352b;
+    transition:.3s;
+}
+
+body.dark{
+    background:#101816;
+    color:#f1f5f3;
+}
+
+header{
+    background:linear-gradient(135deg,#0b6b4f,#15956d);
+    color:white;
+    padding:22px 15px;
+    text-align:center;
+    box-shadow:0 3px 15px #0002;
+}
+
+header h1{
+    font-size:32px;
+    margin-bottom:8px;
+}
+
+header p{
+    opacity:.9;
+}
+
+.container{
+    width:min(1100px,94%);
+    margin:25px auto;
+}
+
+.controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.search{
+    flex:1;
+    min-width:220px;
+    padding:14px 16px;
+    border:2px solid #d8e5df;
+    border-radius:14px;
+    font-size:16px;
+    outline:none;
+}
+
+button{
+    border:0;
+    border-radius:12px;
+    padding:12px 16px;
+    cursor:pointer;
+    font-size:15px;
+    background:#0b6b4f;
+    color:white;
+}
+
+button:hover{
+    opacity:.88;
+}
+
+body.dark .search{
+    background:#1b2824;
+    color:white;
+    border-color:#30443d;
+}
+
+.surah-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+}
+
+.surah{
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    cursor:pointer;
+    border:1px solid #e3ece8;
+    box-shadow:0 3px 12px #0000000d;
+    transition:.2s;
+}
+
+.surah:hover{
+    transform:translateY(-3px);
+    border-color:#0b6b4f;
+}
+
+body.dark .surah{
+    background:#19231f;
+    border-color:#2c3b35;
+}
+
+.surah-number{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background:#e7f4ef;
+    color:#0b6b4f;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+body.dark .surah-number{
+    background:#263c34;
+    color:#73d8b4;
+}
+
+.surah-name{
+    font-size:21px;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+.surah-info{
+    color:#718078;
+    font-size:13px;
+}
+
+body.dark .surah-info{
+    color:#aab8b2;
+}
+
+#reader{
+    display:none;
+}
+
+.reader-card{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 4px 20px #00000012;
+}
+
+body.dark .reader-card{
+    background:#19231f;
+}
+
+.reader-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.reader-title{
+    font-size:30px;
+    color:#0b6b4f;
+}
+
+body.dark .reader-title{
+    color:#73d8b4;
+}
+
+.bismillah{
+    text-align:center;
+    font-size:28px;
+    margin:20px 0 30px;
+}
+
+.ayah{
+    padding:18px 5px;
+    border-bottom:1px solid #dfe8e4;
+    font-size:24px;
+    line-height:2.1;
+}
+
+body.dark .ayah{
+    border-color:#304039;
+}
+
+.ayah-number{
+    display:inline-flex;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    align-items:center;
+    justify-content:center;
+    background:#0b6b4f;
+    color:white;
+    font-size:14px;
+    margin-left:8px;
+}
+
+.tafsir{
+    margin-top:10px;
+    background:#eef7f3;
+    border-radius:12px;
+    padding:14px;
+    display:none;
+    font-size:16px;
+    line-height:1.8;
+}
+
+body.dark .tafsir{
+    background:#23352e;
+}
+
+.empty{
+    text-align:center;
+    padding:40px;
+    color:#777;
+}
+
+footer{
+    text-align:center;
+    padding:30px;
+    color:#718078;
+}
+
+@media(max-width:600px){
+    header h1{
+        font-size:26px;
+    }
+
+    .ayah{
+        font-size:21px;
+    }
+
+    .bismillah{
+        font-size:23px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📖 القرآن الكريم</h1>
+    <p>اقرأ وتدبر كتاب الله</p>
+</header>
+
+<div class="container">
+
+    <div id="home">
+
+        <div class="controls">
+            <input
+                id="search"
+                class="search"
+                type="text"
+                placeholder="🔎 ابحث عن سورة..."
+                oninput="searchSurahs()"
+            >
+
+            <button onclick="showLastRead()">📌 آخر قراءة</button>
+            <button onclick="toggleDark()">🌙 الوضع الليلي</button>
+        </div>
+
+        <div id="surahGrid" class="surah-grid"></div>
+
+    </div>
+
+    <div id="reader">
+
+        <div class="reader-card">
+
+            <div class="reader-top">
+                <button onclick="goHome()">⬅ العودة للسور</button>
+
+                <div>
+                    <button onclick="changeFont(2)">A+</button>
+                    <button onclick="changeFont(-2)">A-</button>
+                </div>
+            </div>
+
+            <h2 id="readerTitle" class="reader-title"></h2>
+
+            <div class="bismillah">
+                بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+            </div>
+
+            <div id="ayahs"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    القرآن الكريم ❤️
+</footer>
+
+<script>
+
+const surahs = [
+["الفاتحة",7],["البقرة",286],["آل عمران",200],["النساء",176],
+["المائدة",120],["الأنعام",165],["الأعراف",206],["الأنفال",75],
+["التوبة",129],["يونس",109],["هود",123],["يوسف",111],
+["الرعد",43],["إبراهيم",52],["الحجر",99],["النحل",128],
+["الإسراء",111],["الكهف",110],["مريم",98],["طه",135],
+["الأنبياء",112],["الحج",78],["المؤمنون",118],["النور",64],
+["الفرقان",77],["الشعراء",227],["النمل",93],["القصص",88],
+["العنكبوت",69],["الروم",60],["لقمان",34],["السجدة",30],
+["الأحزاب",73],["سبأ",54],["فاطر",45],["يس",83],
+["الصافات",182],["ص",88],["الزمر",75],["غافر",85],
+["فصلت",54],["الشورى",53],["الزخرف",89],["الدخان",59],
+["الجاثية",37],["الأحقاف",35],["محمد",38],["الفتح",29],
+["الحجرات",18],["ق",45],["الذاريات",60],["الطور",49],
+["النجم",62],["القمر",55],["الرحمن",78],["الواقعة",96],
+["الحديد",29],["المجادلة",22],["الحشر",24],["الممتحنة",13],
+["الصف",14],["الجمعة",11],["المنافقون",11],["التغابن",18],
+["الطلاق",12],["التحريم",12],["الملك",30],["القلم",52],
+["الحاقة",52],["المعارج",44],["نوح",28],["الجن",28],
+["المزمل",20],["المدثر",56],["القيامة",40],["الإنسان",31],
+["المرسلات",50],["النبأ",40],["النازعات",46],["عبس",42],
+["التكوير",29],["الانفطار",19],["المطففين",36],["الانشقاق",25],
+["البروج",22],["الطارق",17],["الأعلى",19],["الغاشية",26],
+["الفجر",30],["البلد",20],["الشمس",15],["الليل",21],
+["الضحى",11],["الشرح",8],["التين",8],["العلق",19],
+["القدر",5],["البينة",8],["الزلزلة",8],["العاديات",11],
+["القارعة",11],["التكاثر",8],["العصر",3],["الهمزة",9],
+["الفيل",5],["قريش",4],["الماعون",7],["الكوثر",3],
+["الكافرون",6],["النصر",3],["المسد",5],["الإخلاص",4],
+["الفلق",5],["الناس",6]
+];
+
+let currentSurah = null;
+let fontSize = 24;
+
+function renderSurahs(list = surahs){
+
+    const grid = document.getElementById("surahGrid");
+
+    grid.innerHTML = "";
+
+    if(list.length === 0){
+        grid.innerHTML =
+        '<div class="empty">لم يتم العثور على السورة</div>';
+        return;
+    }
+
+    list.forEach((surah,index)=>{
+
+        const realNumber = surahs.indexOf(surah)+1;
+
+        const card = document.createElement("div");
+
+        card.className = "surah";
+
+        card.onclick = () => openSurah(realNumber);
+
+        card.innerHTML = `
+            <div class="surah-number">${realNumber}</div>
+            <div class="surah-name">${surah[0]}</div>
+            <div class="surah-info">${surah[1]} آية</div>
+        `;
+
+        grid.appendChild(card);
+    });
+}
+
+function searchSurahs(){
+
+    const value =
+    document.getElementById("search").value.trim();
+
+    if(!value){
+        renderSurahs();
+        return;
+    }
+
+    const result = surahs.filter(s =>
+        s[0].includes(value)
+    );
+
+    renderSurahs(result);
+}
+
+function openSurah(number){
+
+    currentSurah = number;
+
+    localStorage.setItem(
+        "lastSurah",
+        number
+    );
+
+    document.getElementById("home").style.display="none";
+    document.getElementById("reader").style.display="block";
+
+    const data = surahs[number-1];
+
+    document.getElementById("readerTitle").textContent =
+        `${number}. سورة ${data[0]}`;
+
+    /*
+      مكان الآيات والتفسير.
+
+      لن نضع نص القرآن من الذاكرة.
+      هنا نضع البيانات الموثوقة لاحقاً.
+    */
+
+    const ayahs = document.getElementById("ayahs");
+
+    ayahs.innerHTML = `
+        <div class="empty">
+            <h3>سورة ${data[0]}</h3>
+            <p style="margin-top:10px">
+                عدد الآيات: ${data[1]}
+            </p>
+
+            <p style="margin-top:20px">
+                سيتم وضع نص الآيات والتفسير هنا
+                من مصدر موثوق.
+            </p>
+
+            <button
+                style="margin-top:20px"
+                onclick="demoTafsir()">
+                📚 عرض مكان التفسير
+            </button>
+
+            <div id="demoTafsir"
+                 class="tafsir">
+                التفسير سيظهر هنا بعد إضافة مصدر التفسير الموثوق.
+            </div>
+        </div>
+    `;
+}
+
+function demoTafsir(){
+
+    const box =
+    document.getElementById("demoTafsir");
+
+    box.style.display =
+    box.style.display === "block"
+    ? "none"
+    : "block";
+}
+
+function goHome(){
+
+    document.getElementById("reader").style.display="none";
+    document.getElementById("home").style.display="block";
+
+    window.scrollTo(0,0);
+}
+
+function showLastRead(){
+
+    const last =
+    localStorage.getItem("lastSurah");
+
+    if(last){
+        openSurah(Number(last));
+    }else{
+        alert("لم تقرأ أي سورة بعد.");
+    }
+}
+
+function toggleDark(){
+
+    document.body.classList.toggle("dark");
+
+    localStorage.setItem(
+        "darkMode",
+        document.body.classList.contains("dark")
+    );
+}
+
+function changeFont(amount){
+
+    fontSize += amount;
+
+    if(fontSize < 18)
+        fontSize = 18;
+
+    if(fontSize > 40)
+        fontSize = 40;
+
+    document.querySelectorAll(".ayah")
+    .forEach(el=>{
+        el.style.fontSize = fontSize+"px";
+    });
+}
+
+if(localStorage.getItem("darkMode")==="true"){
+    document.body.classList.add("dark");
+}
+
+renderSurahs();
+
+</script>
+
+</body>
+</html>
+```
